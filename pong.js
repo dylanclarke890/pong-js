@@ -21,7 +21,8 @@ const DIRECTION = {
 };
 
 class Paddle {
-  constructor(x) {
+  constructor(name, x) {
+    this.name = name;
     this.h = 80;
     this.w = 20;
     this.x = x;
@@ -41,7 +42,7 @@ class Paddle {
 
 class EnemyPaddle extends Paddle {
   constructor() {
-    super(canvas.width - 40);
+    super("Enemy", canvas.width - 40);
   }
 
   update() {
@@ -58,7 +59,7 @@ class EnemyPaddle extends Paddle {
 
 class PlayerPaddle extends Paddle {
   constructor() {
-    super(20);
+    super("Player", 20);
   }
 
   update() {
@@ -126,8 +127,14 @@ class Ball {
       this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
     }
 
-    if (this.x - this.r === 0) state.roundWon = true;
-    if (this.x + this.r === canvas.width) state.roundWon = true;
+    if (this.x - this.r === 0) {
+      state.roundWon = true;
+      state.winner = board.enemy;
+    }
+    if (this.x + this.r === canvas.width) {
+      state.roundWon = true;
+      state.winner = board.player;
+    }
   }
 
   draw() {
@@ -150,7 +157,7 @@ const board = {
   }),
 };
 const state = {
-  countdown: 3,
+  countdown: 0,
   key: {
     pressing: false,
     direction: "",
@@ -180,22 +187,40 @@ function handleBall() {
 }
 
 function handleGameState() {
-  ctx.font = "30px Arial";
-  ctx.fillStyle = "white";
-  ctx.fillText(state.score.p, canvas.width / 2 - 50, 30);
-  ctx.fillText(state.score.e, canvas.width / 2 + 50, 30);
-
-  if (!state.roundWon && !state.over) return;
-
   if (state.roundWon) {
     if (state.winner === board.player) state.score.p++;
     if (state.winner === board.enemy) state.score.e++;
+    state.winner = null;
+  }
+  if (state.score.p >= 3 && state.roundWon) {
+    state.over = true;
+    state.winner = board.player;
+  } else if (state.score.e >= 3 && state.roundWon) {
+    state.over = true;
+    state.winner = board.enemy;
+  }
+
+  if (state.roundWon && !state.over) {
     board.ball.x = canvas.width / 2 - 5;
     board.ball.y = canvas.height / 2 - 5;
     state.countdown = 180;
     state.roundWon = false;
   }
-  if (state.score === 3) state.over = true;
+
+  if (state.over) {
+    ctx.font = "60px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText(
+      `${state.winner.name} Wins!`,
+      canvas.width / 2 - 200,
+      canvas.height / 2
+    );
+  }
+
+  ctx.font = "30px Arial";
+  ctx.fillStyle = "white";
+  ctx.fillText(state.score.p, canvas.width / 2 - 50, 30);
+  ctx.fillText(state.score.e, canvas.width / 2 + 50, 30);
 }
 
 function handleCountDown() {
