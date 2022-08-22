@@ -79,6 +79,7 @@ class Ball {
     this.y = canvas.height / 2 - 5;
     this.r = 10;
     this.speed = 1;
+    this.collisionCount = 0;
     this.trajectory = trajectory;
   }
 
@@ -87,11 +88,18 @@ class Ball {
       this.trajectory.x === DIRECTION.LEFT ? this.speed : -this.speed;
     const yMovement =
       this.trajectory.y === DIRECTION.UP ? this.speed : -this.speed;
-    this.x -= xMovement;
-    this.y -= yMovement;
+    this.x = Math.floor(this.x - xMovement);
+    this.y = Math.floor(this.y - yMovement);
 
-    if (this.y - this.r === 0) this.trajectory.y = DIRECTION.DOWN;
-    if (this.y + this.r === canvas.height) this.trajectory.y = DIRECTION.UP;
+    let hasCollided = false;
+    if (this.y - this.r === 0) {
+      this.trajectory.y = DIRECTION.DOWN;
+      hasCollided = true;
+    }
+    if (this.y + this.r === canvas.height) {
+      this.trajectory.y = DIRECTION.UP;
+      hasCollided = true;
+    }
     const { player, enemy } = board;
     if (
       this.x - this.r === player.x + player.w &&
@@ -99,6 +107,7 @@ class Ball {
       this.y < player.y + player.h
     ) {
       this.trajectory.x = DIRECTION.RIGHT;
+      hasCollided = true;
     }
 
     if (
@@ -107,6 +116,13 @@ class Ball {
       this.y < enemy.y + enemy.h
     ) {
       this.trajectory.x = DIRECTION.LEFT;
+      hasCollided = true;
+    }
+
+    if (hasCollided) this.collisionCount++;
+    if (this.collisionCount > 0 && this.collisionCount % 5 === 0) {
+      this.speed++;
+      this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
     }
   }
 
