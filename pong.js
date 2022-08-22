@@ -6,6 +6,11 @@ const new2dCanvas = function (id, width, height) {
   return [canvas, ctx];
 };
 
+const randUpTo = function (num, floor = false) {
+  const res = Math.random() * num;
+  return floor ? Math.floor(res) : res;
+};
+
 class Paddle {
   constructor(x) {
     this.h = 80;
@@ -37,10 +42,22 @@ class PlayerPaddle extends Paddle {
 }
 
 class Ball {
-  constructor() {
+  constructor(trajectory) {
     this.x = canvas.width / 2 - 5;
     this.y = canvas.height / 2 - 5;
     this.size = 10;
+    this.speed = 1;
+    console.log(trajectory);
+    this.trajectory = trajectory;
+  }
+
+  update() {
+    const xSpeed =
+      this.trajectory.x === DIRECTION.LEFT ? -this.speed : this.speed;
+    const ySpeed =
+      this.trajectory.y === DIRECTION.UP ? -this.speed : this.speed;
+    this.x -= xSpeed;
+    this.y -= ySpeed;
   }
 
   draw() {
@@ -53,10 +70,23 @@ class Ball {
 
 const [canvas, ctx] = new2dCanvas("play-area", 800, 500);
 
+const DIRECTION = {
+  UP: "U",
+  DOWN: "D",
+  LEFT: "L",
+  RIGHT: "R",
+};
+
+const Y_DIRECTIONS = [DIRECTION.UP, DIRECTION.DOWN];
+const X_DIRECTIONS = [DIRECTION.LEFT, DIRECTION.RIGHT];
+
 const board = {
   player: new PlayerPaddle(),
   enemy: new EnemyPaddle(),
-  ball: new Ball(),
+  ball: new Ball({
+    x: X_DIRECTIONS[randUpTo(2, true)],
+    y: Y_DIRECTIONS[randUpTo(2, true)],
+  }),
 };
 
 function handlePlayerPaddle() {
@@ -69,8 +99,17 @@ function handleEnemyPaddle() {
 
 function handleBall() {
   board.ball.draw();
+  board.ball.update();
 }
 
+window.addEventListener("keypress", (e) => {
+  switch (e.key) {
+    case "ArrowUp":
+      break;
+    case "ArrowDown":
+      break;
+  }
+});
 
 (function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
