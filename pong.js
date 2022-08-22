@@ -11,6 +11,15 @@ const randUpTo = function (num, floor = false) {
   return floor ? Math.floor(res) : res;
 };
 
+const [canvas, ctx] = new2dCanvas("play-area", 800, 500);
+
+const DIRECTION = {
+  UP: "U",
+  DOWN: "D",
+  LEFT: "L",
+  RIGHT: "R",
+};
+
 class Paddle {
   constructor(x) {
     this.h = 80;
@@ -45,9 +54,8 @@ class Ball {
   constructor(trajectory) {
     this.x = canvas.width / 2 - 5;
     this.y = canvas.height / 2 - 5;
-    this.size = 10;
+    this.r = 10;
     this.speed = 1;
-    console.log(trajectory);
     this.trajectory = trajectory;
   }
 
@@ -55,27 +63,21 @@ class Ball {
     const xSpeed =
       this.trajectory.x === DIRECTION.LEFT ? -this.speed : this.speed;
     const ySpeed =
-      this.trajectory.y === DIRECTION.UP ? -this.speed : this.speed;
+      this.trajectory.y === DIRECTION.UP ? this.speed : -this.speed;
     this.x -= xSpeed;
     this.y -= ySpeed;
+
+    if (this.y - this.r === 0) this.trajectory.y = DIRECTION.DOWN;
+    if (this.y + this.r === canvas.height) this.trajectory.y = DIRECTION.UP;
   }
 
   draw() {
     ctx.fillStyle = "white";
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, true);
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
     ctx.fill();
   }
 }
-
-const [canvas, ctx] = new2dCanvas("play-area", 800, 500);
-
-const DIRECTION = {
-  UP: "U",
-  DOWN: "D",
-  LEFT: "L",
-  RIGHT: "R",
-};
 
 const Y_DIRECTIONS = [DIRECTION.UP, DIRECTION.DOWN];
 const X_DIRECTIONS = [DIRECTION.LEFT, DIRECTION.RIGHT];
