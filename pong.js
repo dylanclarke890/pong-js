@@ -6,31 +6,71 @@ const new2dCanvas = function (id, width, height) {
   return [canvas, ctx];
 };
 
+class Paddle {
+  constructor(x) {
+    this.h = 80;
+    this.w = 20;
+    this.x = x;
+    this.y = canvas.height / 2 - this.h / 2;
+  }
+
+  draw() {
+    ctx.fillStyle = "white";
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+  }
+
+  update() {
+    throw new Error("not implemented on base class.");
+  }
+}
+
+class EnemyPaddle extends Paddle {
+  constructor() {
+    super(canvas.width - 40);
+  }
+}
+
+class PlayerPaddle extends Paddle {
+  constructor() {
+    super(20);
+  }
+}
+
+class Ball {
+  constructor() {
+    this.x = canvas.width / 2 - 5;
+    this.y = canvas.height / 2 - 5;
+    this.size = 10;
+  }
+
+  draw() {
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, true);
+    ctx.fill();
+  }
+}
+
 const [canvas, ctx] = new2dCanvas("play-area", 800, 500);
 
+const board = {
+  player: new PlayerPaddle(),
+  enemy: new EnemyPaddle(),
+  ball: new Ball(),
+};
+
 function handlePlayerPaddle() {
-  ctx.fillStyle = "white";
-  ctx.fillRect(20, canvas.height / 2 - 40, 20, 80);
+  board.player.draw();
 }
 
 function handleEnemyPaddle() {
-  ctx.fillStyle = "white";
-  ctx.fillRect(canvas.width - 40, canvas.height / 2 - 40, 20, 80);
+  board.enemy.draw();
 }
 
 function handleBall() {
-  ctx.fillStyle = "white";
-  ctx.beginPath();
-  ctx.arc(
-    canvas.width / 2 - 5,
-    canvas.height / 2 - 5,
-    10,
-    0,
-    Math.PI * 2,
-    true
-  );
-  ctx.fill();
+  board.ball.draw();
 }
+
 
 (function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
