@@ -43,6 +43,17 @@ class EnemyPaddle extends Paddle {
   constructor() {
     super(canvas.width - 40);
   }
+
+  update() {
+    if (!state.key.pressing) return;
+    const movement =
+      state.key.direction === DIRECTION.UP
+        ? this.paddleSpeed
+        : -this.paddleSpeed;
+    const position = this.y - movement;
+    if (position < 0 || position > canvas.height - this.h) return;
+    this.y = position;
+  }
 }
 
 class PlayerPaddle extends Paddle {
@@ -73,7 +84,7 @@ class Ball {
 
   update() {
     const xMovement =
-      this.trajectory.x === DIRECTION.LEFT ? -this.speed : this.speed;
+      this.trajectory.x === DIRECTION.LEFT ? this.speed : -this.speed;
     const yMovement =
       this.trajectory.y === DIRECTION.UP ? this.speed : -this.speed;
     this.x -= xMovement;
@@ -81,7 +92,21 @@ class Ball {
 
     if (this.y - this.r === 0) this.trajectory.y = DIRECTION.DOWN;
     if (this.y + this.r === canvas.height) this.trajectory.y = DIRECTION.UP;
-    if (this.y + this.r === canvas.height) {
+    const { player, enemy } = board;
+    if (
+      this.x - this.r === player.x + player.w &&
+      this.y > player.y &&
+      this.y < player.y + player.h
+    ) {
+      this.trajectory.x = DIRECTION.RIGHT;
+    }
+
+    if (
+      this.x + this.r === enemy.x &&
+      this.y > enemy.y &&
+      this.y < enemy.y + enemy.h
+    ) {
+      this.trajectory.x = DIRECTION.LEFT;
     }
   }
 
@@ -124,6 +149,7 @@ function handlePlayerPaddle() {
 
 function handleEnemyPaddle() {
   board.enemy.draw();
+  board.enemy.update();
 }
 
 function handleBall() {
