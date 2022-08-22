@@ -8,9 +8,34 @@ const new2dCanvas = function (id, width, height) {
 
 const [canvas, ctx] = new2dCanvas("play-area", 800, 500);
 
+function handlePlayerPaddle() {
+  ctx.fillStyle = "white";
+  ctx.fillRect(20, canvas.height / 2 - 40, 20, 80);
+}
+
+function handleEnemyPaddle() {
+  ctx.fillStyle = "white";
+  ctx.fillRect(canvas.width - 40, canvas.height / 2 - 40, 20, 80);
+}
+
+function handleBall() {
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(
+    canvas.width / 2 - 5,
+    canvas.height / 2 - 5,
+    10,
+    0,
+    Math.PI * 2,
+    true
+  );
+  ctx.fill();
+}
+
 (function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, 200, 200);
+  handleEnemyPaddle();
+  handlePlayerPaddle();
+  handleBall();
   requestAnimationFrame(animate);
 })();
