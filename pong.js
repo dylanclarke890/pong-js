@@ -26,6 +26,7 @@ class Paddle {
     this.w = 20;
     this.x = x;
     this.y = canvas.height / 2 - this.h / 2;
+    this.paddleSpeed = 2;
   }
 
   draw() {
@@ -48,6 +49,17 @@ class PlayerPaddle extends Paddle {
   constructor() {
     super(20);
   }
+
+  update() {
+    if (!state.key.pressing) return;
+    const movement =
+      state.key.direction === DIRECTION.UP
+        ? this.paddleSpeed
+        : -this.paddleSpeed;
+    const position = this.y - movement;
+    if (position < 0 || position > canvas.height - this.h) return;
+    this.y = position;
+  }
 }
 
 class Ball {
@@ -60,15 +72,17 @@ class Ball {
   }
 
   update() {
-    const xSpeed =
+    const xMovement =
       this.trajectory.x === DIRECTION.LEFT ? -this.speed : this.speed;
-    const ySpeed =
+    const yMovement =
       this.trajectory.y === DIRECTION.UP ? this.speed : -this.speed;
-    this.x -= xSpeed;
-    this.y -= ySpeed;
+    this.x -= xMovement;
+    this.y -= yMovement;
 
     if (this.y - this.r === 0) this.trajectory.y = DIRECTION.DOWN;
     if (this.y + this.r === canvas.height) this.trajectory.y = DIRECTION.UP;
+    if (this.y + this.r === canvas.height) {
+    }
   }
 
   draw() {
@@ -89,10 +103,23 @@ const board = {
     x: X_DIRECTIONS[randUpTo(2, true)],
     y: Y_DIRECTIONS[randUpTo(2, true)],
   }),
+  score: {
+    p: 0,
+    e: 0,
+  },
+};
+const state = {
+  countdown: 3,
+  key: {
+    pressing: false,
+    direction: "",
+  },
+  over: false,
 };
 
 function handlePlayerPaddle() {
   board.player.draw();
+  board.player.update();
 }
 
 function handleEnemyPaddle() {
@@ -104,13 +131,21 @@ function handleBall() {
   board.ball.update();
 }
 
-window.addEventListener("keypress", (e) => {
+window.addEventListener("keydown", (e) => {
   switch (e.key) {
     case "ArrowUp":
+      state.key = { pressing: true, direction: DIRECTION.UP };
       break;
     case "ArrowDown":
+      state.key = { pressing: true, direction: DIRECTION.DOWN };
+      break;
+    default:
       break;
   }
+});
+
+window.addEventListener("keyup", () => {
+  state.key = { pressing: false, direction: "" };
 });
 
 (function animate() {
@@ -118,5 +153,5 @@ window.addEventListener("keypress", (e) => {
   handleEnemyPaddle();
   handlePlayerPaddle();
   handleBall();
-  requestAnimationFrame(animate);
+  if (!state.over) requestAnimationFrame(animate);
 })();
