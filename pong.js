@@ -84,6 +84,7 @@ class Ball {
   }
 
   update() {
+    if (state.countdown) return;
     const xMovement =
       this.trajectory.x === DIRECTION.LEFT ? this.speed : -this.speed;
     const yMovement =
@@ -124,6 +125,9 @@ class Ball {
       this.speed++;
       this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
     }
+
+    if (this.x - this.r === 0) state.roundWon = true;
+    if (this.x + this.r === canvas.width) state.roundWon = true;
   }
 
   draw() {
@@ -144,10 +148,6 @@ const board = {
     x: X_DIRECTIONS[randUpTo(2, true)],
     y: Y_DIRECTIONS[randUpTo(2, true)],
   }),
-  score: {
-    p: 0,
-    e: 0,
-  },
 };
 const state = {
   countdown: 3,
@@ -155,7 +155,13 @@ const state = {
     pressing: false,
     direction: "",
   },
+  roundWon: false,
   over: false,
+  winner: null,
+  score: {
+    p: 0,
+    e: 0,
+  },
 };
 
 function handlePlayerPaddle() {
@@ -171,6 +177,37 @@ function handleEnemyPaddle() {
 function handleBall() {
   board.ball.draw();
   board.ball.update();
+}
+
+function handleGameState() {
+  ctx.font = "30px Arial";
+  ctx.fillStyle = "white";
+  ctx.fillText(state.score.p, canvas.width / 2 - 50, 30);
+  ctx.fillText(state.score.e, canvas.width / 2 + 50, 30);
+
+  if (!state.roundWon && !state.over) return;
+
+  if (state.roundWon) {
+    if (state.winner === board.player) state.score.p++;
+    if (state.winner === board.enemy) state.score.e++;
+    board.ball.x = canvas.width / 2 - 5;
+    board.ball.y = canvas.height / 2 - 5;
+    state.countdown = 180;
+    state.roundWon = false;
+  }
+  if (state.score === 3) state.over = true;
+}
+
+function handleCountDown() {
+  if (state.countdown === 0) return;
+  state.countdown--;
+  ctx.font = "60px Arial";
+  ctx.fillStyle = "white";
+  ctx.fillText(
+    Math.ceil(state.countdown / 60),
+    canvas.width / 2,
+    canvas.height / 2
+  );
 }
 
 window.addEventListener("keydown", (e) => {
@@ -195,5 +232,7 @@ window.addEventListener("keyup", () => {
   handleEnemyPaddle();
   handlePlayerPaddle();
   handleBall();
+  handleGameState();
+  handleCountDown();
   if (!state.over) requestAnimationFrame(animate);
 })();
