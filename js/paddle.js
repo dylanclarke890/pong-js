@@ -17,7 +17,7 @@ PONG.Paddle.Base = class {
   }
 
   update() {
-    throw new Error("not implemented on base class.");
+    throw new Error("Not implemented on base class.");
   }
 };
 
@@ -42,17 +42,33 @@ PONG.Paddle.Pong = class extends PONG.Paddle.Base {
 };
 
 PONG.Paddle.Player = class extends PONG.Paddle.Base {
-  constructor(name) {
+  constructor(name, controlsType) {
     super(name, 20);
+    this.controlsType = controlsType || "Standard";
   }
 
   update() {
-    if (!state.key.pressing) return;
-    const movement =
-      state.key.direction === DIRECTION.UP
-        ? this.paddleSpeed
-        : -this.paddleSpeed;
-    const position = this.y - movement;
+    let movement;
+    let position;
+    switch (this.controlsType) {
+      default:
+        break;
+      case "Standard":
+        if (!state.controls.standard.pressing) return;
+        movement =
+          state.controls.standard.direction === DIRECTION.UP
+            ? this.paddleSpeed
+            : -this.paddleSpeed;
+        break;
+      case "Alt":
+        if (!state.controls.alt.pressing) return;
+        movement =
+          state.controls.alt.direction === DIRECTION.UP
+            ? this.paddleSpeed
+            : -this.paddleSpeed;
+        break;
+    }
+    position = this.y - movement;
     if (position < 0 || position > canvas.height - this.h) return;
     this.y = position;
   }

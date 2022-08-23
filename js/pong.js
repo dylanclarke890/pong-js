@@ -30,9 +30,15 @@ const board = {
 const state = {
   countdown: 180,
   frame: 0,
-  key: {
-    pressing: false,
-    direction: "",
+  controls: {
+    standard: {
+      pressing: false,
+      direction: "",
+    },
+    alt: {
+      pressing: false,
+      direction: "",
+    },
   },
   roundWon: false,
   over: false,
@@ -48,20 +54,38 @@ const state = {
  */
 
 window.addEventListener("keydown", (e) => {
-  switch (e.key) {
-    case "ArrowUp":
-      state.key = { pressing: true, direction: DIRECTION.UP };
+  console.log(e.key.toLowerCase());
+  switch (e.key.toLowerCase()) {
+    case "arrowup":
+      state.controls.standard = { pressing: true, direction: DIRECTION.UP };
       break;
-    case "ArrowDown":
-      state.key = { pressing: true, direction: DIRECTION.DOWN };
+    case "arrowdown":
+      state.controls.standard = { pressing: true, direction: DIRECTION.DOWN };
+      break;
+    case "w":
+      state.controls.alt = { pressing: true, direction: DIRECTION.UP };
+      break;
+    case "s":
+      state.controls.alt = { pressing: true, direction: DIRECTION.DOWN };
       break;
     default:
       break;
   }
 });
 
-window.addEventListener("keyup", () => {
-  state.key = { pressing: false, direction: "" };
+window.addEventListener("keyup", (e) => {
+  switch (e.key.toLowerCase()) {
+    case "arrowup":
+    case "arrowdown":
+      state.controls.standard = { pressing: false, direction: "" };
+      break;
+    case "w":
+    case "s":
+      state.controls.alt = { pressing: false, direction: "" };
+      break;
+    default:
+      break;
+  }
 });
 
 /********************************************************************
