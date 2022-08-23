@@ -3,7 +3,6 @@ const [canvas, ctx] = PONG.utils.new2dCanvas("play-area", 800, 500);
 /********************************************************
  *                  G L O B A L S
  */
-
 const DIRECTION = {
   UP: "U",
   DOWN: "D",
@@ -11,20 +10,24 @@ const DIRECTION = {
   RIGHT: "R",
 };
 
-const Y_DIRECTIONS = [DIRECTION.UP, DIRECTION.DOWN];
-const X_DIRECTIONS = [DIRECTION.LEFT, DIRECTION.RIGHT];
+const center = {
+  w: canvas.width / 2,
+  h: canvas.height / 2
+}
 
 const board = {
   player: new PONG.Paddle.Player(),
   pong: new PONG.Paddle.Pong(),
   ball: new PONG.Ball({
-    x: X_DIRECTIONS[PONG.utils.randUpTo(2, true)],
-    y: Y_DIRECTIONS[PONG.utils.randUpTo(2, true)],
+    // randomly select left/right and up/down as starting directions for the ball
+    x: [DIRECTION.LEFT, DIRECTION.RIGHT][PONG.utils.randUpTo(2, true)],
+    y: [DIRECTION.UP, DIRECTION.DOWN][PONG.utils.randUpTo(2, true)],
   }),
 };
 
 const state = {
   countdown: 180,
+  frame: 0,
   key: {
     pressing: false,
     direction: "",
@@ -41,6 +44,7 @@ const state = {
 /********************************************************************
  *                          E V E N T S
  */
+
 window.addEventListener("keydown", (e) => {
   switch (e.key) {
     case "ArrowUp":
@@ -83,47 +87,34 @@ function handleGameState() {
     if (state.winner === board.pong) state.score.e++;
     state.winner = null;
   }
-  if (state.score.p >= 3 && state.roundWon) {
+  if (state.score.p >= 6 && state.roundWon) {
     state.over = true;
     state.winner = board.player;
-  } else if (state.score.e >= 3 && state.roundWon) {
+  } else if (state.score.e >= 6 && state.roundWon) {
     state.over = true;
     state.winner = board.pong;
   }
 
   if (state.roundWon && !state.over) {
-    board.ball.x = canvas.width / 2 - 5;
-    board.ball.y = canvas.height / 2 - 5;
+    board.ball.x = center.w - 5;
+    board.ball.y = center.h - 5;
     state.countdown = 180;
     state.roundWon = false;
   }
 
-  if (state.over) {
-    ctx.font = "60px Arial";
-    ctx.fillStyle = "white";
-    ctx.fillText(
-      `${state.winner.name} Wins!`,
-      canvas.width / 2 - 200,
-      canvas.height / 2
-    );
-  }
+  if (state.over)
+    PONG.utils.drawText(`${state.winner.name} Wins!`, "60px Arial", "white", center.w - 200, center.h);
 
-  ctx.font = "30px Arial";
-  ctx.fillStyle = "white";
-  ctx.fillText(state.score.p, canvas.width / 2 - 50, 30);
-  ctx.fillText(state.score.e, canvas.width / 2 + 50, 30);
+  const { p, e } = state.score;
+  PONG.utils.drawText(p, "30px Arial", "white", center.w - 50, 25);
+  PONG.utils.drawText(e, "30px Arial", "white", center.w + 50, 25);
+  this.frame++;
 }
 
 function handleCountDown() {
   if (state.countdown === 0) return;
   state.countdown--;
-  ctx.font = "60px Arial";
-  ctx.fillStyle = "white";
-  ctx.fillText(
-    Math.ceil(state.countdown / 60),
-    canvas.width / 2,
-    canvas.height / 2
-  );
+  PONG.utils.drawText(Math.ceil(state.countdown / 60), "60px Arial", "white", center.w, center.h);
 }
 
 (function animate() {

@@ -8,7 +8,7 @@ PONG.Paddle.Base = class {
     this.w = 20;
     this.x = x;
     this.y = canvas.height / 2 - this.h / 2;
-    this.paddleSpeed = 4;
+    this.paddleSpeed = 10;
   }
 
   draw() {

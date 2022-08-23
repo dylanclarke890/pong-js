@@ -5,7 +5,7 @@ PONG.Ball = class {
     this.x = canvas.width / 2 - 5;
     this.y = canvas.height / 2 - 5;
     this.r = 10;
-    this.speed = 1;
+    this.speed = 3;
     this.collisionCount = 0;
     this.trajectory = trajectory;
   }
