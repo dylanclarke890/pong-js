@@ -26,6 +26,7 @@ PONG.Paddle.Pong = class extends PONG.Paddle.Base {
     super("Pong", canvas.width - 40);
   }
 
+  // TODO: update ai to stop jittering effect.
   update() {
     const { y } = board.ball;
     let movement;
@@ -41,8 +42,8 @@ PONG.Paddle.Pong = class extends PONG.Paddle.Base {
 };
 
 PONG.Paddle.Player = class extends PONG.Paddle.Base {
-  constructor() {
-    super("Player", 20);
+  constructor(name) {
+    super(name, 20);
   }
 
   update() {

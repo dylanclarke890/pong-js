@@ -15,9 +15,10 @@ const center = {
   h: canvas.height / 2
 }
 
+const againstPlayer = false;
 const board = {
-  player: new PONG.Paddle.Player(),
-  pong: new PONG.Paddle.Pong(),
+  player: new PONG.Paddle.Player("Dylan"),
+  pong: againstPlayer ? new PONG.Paddle.Player("Krys") : new PONG.Paddle.Pong(),
   ball: new PONG.Ball({
     // randomly select left/right and up/down as starting directions for the ball
     x: [DIRECTION.LEFT, DIRECTION.RIGHT][PONG.utils.randUpTo(2, true)],
