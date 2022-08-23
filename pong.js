@@ -27,7 +27,7 @@ class Paddle {
     this.w = 20;
     this.x = x;
     this.y = canvas.height / 2 - this.h / 2;
-    this.paddleSpeed = 2;
+    this.paddleSpeed = 4;
   }
 
   draw() {
@@ -40,17 +40,19 @@ class Paddle {
   }
 }
 
-class EnemyPaddle extends Paddle {
+class PongPaddle extends Paddle {
   constructor() {
-    super("Enemy", canvas.width - 40);
+    super("Pong", canvas.width - 40);
   }
 
   update() {
-    if (!state.key.pressing) return;
-    const movement =
-      state.key.direction === DIRECTION.UP
-        ? this.paddleSpeed
-        : -this.paddleSpeed;
+    const { y } = board.ball;
+    let movement;
+    if (y < this.y && y > this.y + this.h) {
+      movement = 0;
+    } else {
+      movement = y > this.y ? -this.paddleSpeed : this.paddleSpeed;
+    }
     const position = this.y - movement;
     if (position < 0 || position > canvas.height - this.h) return;
     this.y = position;
@@ -94,17 +96,18 @@ class Ball {
     this.y = Math.floor(this.y - yMovement);
 
     let hasCollided = false;
-    if (this.y - this.r === 0) {
+    if (this.y - this.r <= 0) {
       this.trajectory.y = DIRECTION.DOWN;
       hasCollided = true;
     }
-    if (this.y + this.r === canvas.height) {
+    if (this.y + this.r >= canvas.height) {
       this.trajectory.y = DIRECTION.UP;
       hasCollided = true;
     }
     const { player, enemy } = board;
     if (
-      this.x - this.r === player.x + player.w &&
+      this.x - this.r <= player.x + player.w &&
+      this.x - this.r > player.x &&
       this.y > player.y &&
       this.y < player.y + player.h
     ) {
@@ -113,7 +116,8 @@ class Ball {
     }
 
     if (
-      this.x + this.r === enemy.x &&
+      this.x + this.r >= enemy.x &&
+      this.x + this.r < enemy.x + enemy.w &&
       this.y > enemy.y &&
       this.y < enemy.y + enemy.h
     ) {
@@ -127,11 +131,11 @@ class Ball {
       this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
     }
 
-    if (this.x - this.r === 0) {
+    if (this.x - this.r <= 0) {
       state.roundWon = true;
       state.winner = board.enemy;
     }
-    if (this.x + this.r === canvas.width) {
+    if (this.x + this.r >= canvas.width) {
       state.roundWon = true;
       state.winner = board.player;
     }
@@ -150,14 +154,14 @@ const X_DIRECTIONS = [DIRECTION.LEFT, DIRECTION.RIGHT];
 
 const board = {
   player: new PlayerPaddle(),
-  enemy: new EnemyPaddle(),
+  enemy: new PongPaddle(),
   ball: new Ball({
     x: X_DIRECTIONS[randUpTo(2, true)],
     y: Y_DIRECTIONS[randUpTo(2, true)],
   }),
 };
 const state = {
-  countdown: 0,
+  countdown: 180,
   key: {
     pressing: false,
     direction: "",
