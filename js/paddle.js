@@ -31,6 +31,13 @@ PONG.Paddle.Base = class {
     return ball.top() >= this.top() && ball.bottom() <= this.bottom();
   }
 
+  setYPosition(movement) {
+    if (this.top() - movement < 0) this.y = 0;
+    else if (this.bottom() - movement > canvas.height)
+      this.y = canvas.height - this.h;
+    else this.y -= movement;
+  }
+
   draw() {
     ctx.fillStyle = "white";
     ctx.fillRect(this.x, this.y, this.w, this.h);
@@ -48,16 +55,14 @@ PONG.Paddle.Pong = class extends PONG.Paddle.Base {
 
   // TODO: update ai to stop jittering effect.
   update() {
-    const { y } = board.ball;
+    const ball = board.ball;
     let movement;
-    if (y < this.y && y > this.y + this.h) {
+    if (ball.top() > this.top() && ball.bottom() < this.bottom()) {
       movement = 0;
     } else {
-      movement = y > this.y ? -this.paddleSpeed : this.paddleSpeed;
+      movement = ball.top() > this.y ? -this.paddleSpeed : this.paddleSpeed;
     }
-    const position = this.y - movement;
-    if (position < 0 || position > canvas.height - this.h) return;
-    this.y = position;
+    this.setYPosition(movement);
   }
 };
 
@@ -69,7 +74,6 @@ PONG.Paddle.Player = class extends PONG.Paddle.Base {
 
   update() {
     let movement;
-    let position;
     switch (this.controlsType) {
       default:
         break;
@@ -88,8 +92,6 @@ PONG.Paddle.Player = class extends PONG.Paddle.Base {
             : -this.paddleSpeed;
         break;
     }
-    position = this.y - movement;
-    if (position < 0 || position > canvas.height - this.h) return;
-    this.y = position;
+    this.setYPosition(movement);
   }
 };
