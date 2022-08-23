@@ -23,6 +23,7 @@ const board = {
     x: [DIRECTION.LEFT, DIRECTION.RIGHT][PONG.utils.randUpTo(2, true)],
     y: [DIRECTION.UP, DIRECTION.DOWN][PONG.utils.randUpTo(2, true)],
   }),
+  winningScore: 6,
 };
 
 const state = {
@@ -87,10 +88,10 @@ function handleGameState() {
     if (state.winner === board.pong) state.score.e++;
     state.winner = null;
   }
-  if (state.score.p >= 6 && state.roundWon) {
+  if (state.score.p >= board.winningScore && state.roundWon) {
     state.over = true;
     state.winner = board.player;
-  } else if (state.score.e >= 6 && state.roundWon) {
+  } else if (state.score.e >= board.winningScore && state.roundWon) {
     state.over = true;
     state.winner = board.pong;
   }
@@ -103,7 +104,13 @@ function handleGameState() {
   }
 
   if (state.over)
-    PONG.utils.drawText(`${state.winner.name} Wins!`, "60px Arial", "white", center.w - 200, center.h);
+    PONG.utils.drawText(
+      `${state.winner.name} Wins!`,
+      "60px Arial",
+      "white",
+      center.w - 200,
+      center.h
+    );
 
   const { p, e } = state.score;
   PONG.utils.drawText(p, "30px Arial", "white", center.w - 50, 25);
