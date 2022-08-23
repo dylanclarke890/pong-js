@@ -1,17 +1,8 @@
-const new2dCanvas = function (id, width, height) {
-  const canvas = document.getElementById(id);
-  const ctx = canvas.getContext("2d");
-  canvas.width = width;
-  canvas.height = height;
-  return [canvas, ctx];
-};
+const [canvas, ctx] = PONG.utils.new2dCanvas("play-area", 800, 500);
 
-const randUpTo = function (num, floor = false) {
-  const res = Math.random() * num;
-  return floor ? Math.floor(res) : res;
-};
-
-const [canvas, ctx] = new2dCanvas("play-area", 800, 500);
+/********************************************************
+ *                  G L O B A L S
+ */
 
 const DIRECTION = {
   UP: "U",
@@ -20,146 +11,18 @@ const DIRECTION = {
   RIGHT: "R",
 };
 
-class Paddle {
-  constructor(name, x) {
-    this.name = name;
-    this.h = 80;
-    this.w = 20;
-    this.x = x;
-    this.y = canvas.height / 2 - this.h / 2;
-    this.paddleSpeed = 4;
-  }
-
-  draw() {
-    ctx.fillStyle = "white";
-    ctx.fillRect(this.x, this.y, this.w, this.h);
-  }
-
-  update() {
-    throw new Error("not implemented on base class.");
-  }
-}
-
-class PongPaddle extends Paddle {
-  constructor() {
-    super("Pong", canvas.width - 40);
-  }
-
-  update() {
-    const { y } = board.ball;
-    let movement;
-    if (y < this.y && y > this.y + this.h) {
-      movement = 0;
-    } else {
-      movement = y > this.y ? -this.paddleSpeed : this.paddleSpeed;
-    }
-    const position = this.y - movement;
-    if (position < 0 || position > canvas.height - this.h) return;
-    this.y = position;
-  }
-}
-
-class PlayerPaddle extends Paddle {
-  constructor() {
-    super("Player", 20);
-  }
-
-  update() {
-    if (!state.key.pressing) return;
-    const movement =
-      state.key.direction === DIRECTION.UP
-        ? this.paddleSpeed
-        : -this.paddleSpeed;
-    const position = this.y - movement;
-    if (position < 0 || position > canvas.height - this.h) return;
-    this.y = position;
-  }
-}
-
-class Ball {
-  constructor(trajectory) {
-    this.x = canvas.width / 2 - 5;
-    this.y = canvas.height / 2 - 5;
-    this.r = 10;
-    this.speed = 1;
-    this.collisionCount = 0;
-    this.trajectory = trajectory;
-  }
-
-  update() {
-    if (state.countdown) return;
-    const xMovement =
-      this.trajectory.x === DIRECTION.LEFT ? this.speed : -this.speed;
-    const yMovement =
-      this.trajectory.y === DIRECTION.UP ? this.speed : -this.speed;
-    this.x = Math.floor(this.x - xMovement);
-    this.y = Math.floor(this.y - yMovement);
-
-    let hasCollided = false;
-    if (this.y - this.r <= 0) {
-      this.trajectory.y = DIRECTION.DOWN;
-      hasCollided = true;
-    }
-    if (this.y + this.r >= canvas.height) {
-      this.trajectory.y = DIRECTION.UP;
-      hasCollided = true;
-    }
-    const { player, enemy } = board;
-    if (
-      this.x - this.r <= player.x + player.w &&
-      this.x - this.r > player.x &&
-      this.y > player.y &&
-      this.y < player.y + player.h
-    ) {
-      this.trajectory.x = DIRECTION.RIGHT;
-      hasCollided = true;
-    }
-
-    if (
-      this.x + this.r >= enemy.x &&
-      this.x + this.r < enemy.x + enemy.w &&
-      this.y > enemy.y &&
-      this.y < enemy.y + enemy.h
-    ) {
-      this.trajectory.x = DIRECTION.LEFT;
-      hasCollided = true;
-    }
-
-    if (hasCollided) this.collisionCount++;
-    if (this.collisionCount > 0 && this.collisionCount % 5 === 0) {
-      this.speed++;
-      this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
-    }
-
-    if (this.x - this.r <= 0) {
-      state.roundWon = true;
-      state.winner = board.enemy;
-    }
-    if (this.x + this.r >= canvas.width) {
-      state.roundWon = true;
-      state.winner = board.player;
-    }
-  }
-
-  draw() {
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-    ctx.fill();
-  }
-}
-
 const Y_DIRECTIONS = [DIRECTION.UP, DIRECTION.DOWN];
 const X_DIRECTIONS = [DIRECTION.LEFT, DIRECTION.RIGHT];
 
 const board = {
-  player: new PlayerPaddle(),
-  enemy: new PongPaddle(),
-  ball: new Ball({
-    x: X_DIRECTIONS[randUpTo(2, true)],
-    y: Y_DIRECTIONS[randUpTo(2, true)],
+  player: new PONG.Paddle.Player(),
+  pong: new PONG.Paddle.Pong(),
+  ball: new PONG.Ball({
+    x: X_DIRECTIONS[PONG.utils.randUpTo(2, true)],
+    y: Y_DIRECTIONS[PONG.utils.randUpTo(2, true)],
   }),
 };
+
 const state = {
   countdown: 180,
   key: {
@@ -175,14 +38,38 @@ const state = {
   },
 };
 
+/********************************************************************
+ *                          E V E N T S
+ */
+window.addEventListener("keydown", (e) => {
+  switch (e.key) {
+    case "ArrowUp":
+      state.key = { pressing: true, direction: DIRECTION.UP };
+      break;
+    case "ArrowDown":
+      state.key = { pressing: true, direction: DIRECTION.DOWN };
+      break;
+    default:
+      break;
+  }
+});
+
+window.addEventListener("keyup", () => {
+  state.key = { pressing: false, direction: "" };
+});
+
+/********************************************************************
+ *                            M A I N
+ */
+
 function handlePlayerPaddle() {
   board.player.draw();
   board.player.update();
 }
 
 function handleEnemyPaddle() {
-  board.enemy.draw();
-  board.enemy.update();
+  board.pong.draw();
+  board.pong.update();
 }
 
 function handleBall() {
@@ -193,7 +80,7 @@ function handleBall() {
 function handleGameState() {
   if (state.roundWon) {
     if (state.winner === board.player) state.score.p++;
-    if (state.winner === board.enemy) state.score.e++;
+    if (state.winner === board.pong) state.score.e++;
     state.winner = null;
   }
   if (state.score.p >= 3 && state.roundWon) {
@@ -201,7 +88,7 @@ function handleGameState() {
     state.winner = board.player;
   } else if (state.score.e >= 3 && state.roundWon) {
     state.over = true;
-    state.winner = board.enemy;
+    state.winner = board.pong;
   }
 
   if (state.roundWon && !state.over) {
@@ -238,23 +125,6 @@ function handleCountDown() {
     canvas.height / 2
   );
 }
-
-window.addEventListener("keydown", (e) => {
-  switch (e.key) {
-    case "ArrowUp":
-      state.key = { pressing: true, direction: DIRECTION.UP };
-      break;
-    case "ArrowDown":
-      state.key = { pressing: true, direction: DIRECTION.DOWN };
-      break;
-    default:
-      break;
-  }
-});
-
-window.addEventListener("keyup", () => {
-  state.key = { pressing: false, direction: "" };
-});
 
 (function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
