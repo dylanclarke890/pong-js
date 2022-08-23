@@ -97,8 +97,8 @@ function handleGameState() {
   }
 
   if (state.roundWon && !state.over) {
-    board.ball.x = center.w - 5;
-    board.ball.y = center.h - 5;
+    board.ball.x = center.w - board.ball.r / 2;
+    board.ball.y = center.h - board.ball.r / 2;
     state.countdown = 180;
     state.roundWon = false;
   }
