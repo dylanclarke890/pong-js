@@ -11,6 +11,26 @@ PONG.Paddle.Base = class {
     this.paddleSpeed = 10;
   }
 
+  top() {
+    return this.y;
+  }
+
+  bottom() {
+    return this.y + this.h;
+  }
+
+  left() {
+    return this.x;
+  }
+
+  right() {
+    return this.x + this.w;
+  }
+
+  isInYAxisOfBall(ball) {
+    return ball.top() >= this.top() && ball.bottom() <= this.bottom();
+  }
+
   draw() {
     ctx.fillStyle = "white";
     ctx.fillRect(this.x, this.y, this.w, this.h);

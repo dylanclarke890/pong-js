@@ -10,6 +10,22 @@ PONG.Ball = class {
     this.trajectory = trajectory;
   }
 
+  top() {
+    return this.y - this.r;
+  }
+
+  bottom() {
+    return this.y + this.r;
+  }
+
+  left() {
+    return this.x - this.r;
+  }
+
+  right() {
+    return this.x + this.r;
+  }
+
   update() {
     if (state.countdown) return;
     const xMovement =
@@ -18,50 +34,44 @@ PONG.Ball = class {
       this.trajectory.y === DIRECTION.UP ? this.speed : -this.speed;
     this.x = Math.floor(this.x - xMovement);
     this.y = Math.floor(this.y - yMovement);
-
     let hasCollided = false;
-    if (this.y - this.r <= 0) {
+    // Check if it has collided with the top or bottom boundary.
+    if (this.top() <= 0) {
       this.trajectory.y = DIRECTION.DOWN;
       hasCollided = true;
     }
-    if (this.y + this.r >= canvas.height) {
+    if (this.bottom() >= canvas.height) {
       this.trajectory.y = DIRECTION.UP;
       hasCollided = true;
     }
-    const { player, pong: enemy } = board;
-    if (
-      this.x - this.r <= player.x + player.w &&
-      this.x - this.r > player.x &&
-      this.y > player.y &&
-      this.y < player.y + player.h
-    ) {
+
+    // Check for collision with either player's paddle.
+    const { playerOne, playerTwo } = board;
+    if (playerOne.isInYAxisOfBall(this) && this.left() <= playerOne.right()) {
       this.trajectory.x = DIRECTION.RIGHT;
       hasCollided = true;
     }
 
-    if (
-      this.x + this.r >= enemy.x &&
-      this.x + this.r < enemy.x + enemy.w &&
-      this.y > enemy.y &&
-      this.y < enemy.y + enemy.h
-    ) {
+    if (playerTwo.isInYAxisOfBall(this) && this.right() >= playerTwo.left()) {
       this.trajectory.x = DIRECTION.LEFT;
       hasCollided = true;
     }
 
+    // Periodically increase the speed based off of the amount of collisions.
     if (hasCollided) this.collisionCount++;
     if (this.collisionCount > 0 && this.collisionCount % 5 === 0) {
       this.speed++;
       this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
     }
 
-    if (this.x - this.r <= 0) {
+    // Check for collision with the left and right side of the screen.
+    if (this.right() >= canvas.width) {
       state.roundWon = true;
-      state.winner = board.pong;
+      state.winner = board.playerOne;
     }
-    if (this.x + this.r >= canvas.width) {
+    if (this.left() <= 0) {
       state.roundWon = true;
-      state.winner = board.player;
+      state.winner = board.playerTwo;
     }
   }
 

@@ -22,7 +22,7 @@ const center = {
 
 const opponentSettings = {
   pvp: false,
-  p1StartingSide: FIELD_SIDE_POS.RIGHT,
+  p1StartingSide: FIELD_SIDE_POS.LEFT,
 };
 const { pvp, p1StartingSide } = opponentSettings;
 const p2StartingSide =
@@ -31,8 +31,8 @@ const p2StartingSide =
     : FIELD_SIDE_POS.LEFT;
 
 const board = {
-  player: new PONG.Paddle.Player("Dylan", "Standard", p1StartingSide),
-  pong: pvp
+  playerOne: new PONG.Paddle.Player("Dylan", "Standard", p1StartingSide),
+  playerTwo: pvp
     ? new PONG.Paddle.Player("Krys", "Alt", p2StartingSide)
     : new PONG.Paddle.Pong(p2StartingSide),
   ball: new PONG.Ball({
@@ -108,13 +108,13 @@ window.addEventListener("keyup", (e) => {
  */
 
 function handlePlayerPaddle() {
-  board.player.draw();
-  board.player.update();
+  board.playerOne.draw();
+  board.playerOne.update();
 }
 
 function handleEnemyPaddle() {
-  board.pong.draw();
-  board.pong.update();
+  board.playerTwo.draw();
+  board.playerTwo.update();
 }
 
 function handleBall() {
@@ -124,16 +124,16 @@ function handleBall() {
 
 function handleGameState() {
   if (state.roundWon) {
-    if (state.winner === board.player) state.score.p++;
-    if (state.winner === board.pong) state.score.e++;
+    if (state.winner === board.playerOne) state.score.p++;
+    if (state.winner === board.playerTwo) state.score.e++;
     state.winner = null;
   }
   if (state.score.p >= board.winningScore && state.roundWon) {
     state.over = true;
-    state.winner = board.player;
+    state.winner = board.playerOne;
   } else if (state.score.e >= board.winningScore && state.roundWon) {
     state.over = true;
-    state.winner = board.pong;
+    state.winner = board.playerTwo;
   }
 
   if (state.roundWon && !state.over) {
