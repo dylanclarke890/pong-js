@@ -20,12 +20,21 @@ const center = {
   h: canvas.height / 2,
 };
 
-const againstPlayer = true;
+const opponentSettings = {
+  pvp: false,
+  p1StartingSide: FIELD_SIDE_POS.RIGHT,
+};
+const { pvp, p1StartingSide } = opponentSettings;
+const p2StartingSide =
+  p1StartingSide === FIELD_SIDE_POS.LEFT
+    ? FIELD_SIDE_POS.RIGHT
+    : FIELD_SIDE_POS.LEFT;
+
 const board = {
-  player: new PONG.Paddle.Player("Dylan", "Standard", FIELD_SIDE_POS.LEFT),
-  pong: againstPlayer
-    ? new PONG.Paddle.Player("Krys", "Alt", FIELD_SIDE_POS.RIGHT)
-    : new PONG.Paddle.Pong(FIELD_SIDE_POS.RIGHT),
+  player: new PONG.Paddle.Player("Dylan", "Standard", p1StartingSide),
+  pong: pvp
+    ? new PONG.Paddle.Player("Krys", "Alt", p2StartingSide)
+    : new PONG.Paddle.Pong(p2StartingSide),
   ball: new PONG.Ball({
     // randomly select left/right and up/down as starting directions for the ball
     x: [DIRECTION.LEFT, DIRECTION.RIGHT][PONG.utils.randUpTo(2, true)],
@@ -61,7 +70,6 @@ const state = {
  */
 
 window.addEventListener("keydown", (e) => {
-  console.log(e.key.toLowerCase());
   switch (e.key.toLowerCase()) {
     case "arrowup":
       state.controls.standard = { pressing: true, direction: DIRECTION.UP };
