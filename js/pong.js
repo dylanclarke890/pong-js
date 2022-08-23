@@ -10,15 +10,22 @@ const DIRECTION = {
   RIGHT: "R",
 };
 
+const FIELD_SIDE_POS = {
+  LEFT: 20,
+  RIGHT: canvas.width - 40,
+};
+
 const center = {
   w: canvas.width / 2,
-  h: canvas.height / 2
-}
+  h: canvas.height / 2,
+};
 
-const againstPlayer = false;
+const againstPlayer = true;
 const board = {
-  player: new PONG.Paddle.Player("Dylan"),
-  pong: againstPlayer ? new PONG.Paddle.Player("Krys") : new PONG.Paddle.Pong(),
+  player: new PONG.Paddle.Player("Dylan", "Standard", FIELD_SIDE_POS.LEFT),
+  pong: againstPlayer
+    ? new PONG.Paddle.Player("Krys", "Alt", FIELD_SIDE_POS.RIGHT)
+    : new PONG.Paddle.Pong(FIELD_SIDE_POS.RIGHT),
   ball: new PONG.Ball({
     // randomly select left/right and up/down as starting directions for the ball
     x: [DIRECTION.LEFT, DIRECTION.RIGHT][PONG.utils.randUpTo(2, true)],

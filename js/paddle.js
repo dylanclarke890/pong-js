@@ -22,8 +22,8 @@ PONG.Paddle.Base = class {
 };
 
 PONG.Paddle.Pong = class extends PONG.Paddle.Base {
-  constructor() {
-    super("Pong", canvas.width - 40);
+  constructor(x) {
+    super("Pong", x);
   }
 
   // TODO: update ai to stop jittering effect.
@@ -42,8 +42,8 @@ PONG.Paddle.Pong = class extends PONG.Paddle.Base {
 };
 
 PONG.Paddle.Player = class extends PONG.Paddle.Base {
-  constructor(name, controlsType) {
-    super(name, 20);
+  constructor(name, controlsType, x) {
+    super(name, x);
     this.controlsType = controlsType || "Standard";
   }
 
