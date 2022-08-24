@@ -32,13 +32,15 @@ PONG.Ball = class {
     let hasCollided = false;
     if (
       paddle.x === FIELD_SIDE_POS.LEFT.paddleX &&
-      this.left() <= paddle.right()
+      this.left() <= paddle.right() &&
+      this.left() >= paddle.left()
     ) {
       this.trajectory.x = DIRECTION.RIGHT;
       hasCollided = true;
     } else if (
       paddle.x === FIELD_SIDE_POS.RIGHT.paddleX &&
-      this.right() >= paddle.left()
+      this.right() >= paddle.left() &&
+      this.right() <= paddle.right()
     ) {
       this.trajectory.x = DIRECTION.LEFT;
       hasCollided = true;
