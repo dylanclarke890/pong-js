@@ -20,9 +20,13 @@ const FIELD_SIDE_POS = {
   RIGHT: { paddleX: canvas.width - 40, scoreX: center.w + 50 },
 };
 
+const audio = {
+  collision: document.getElementById("collision"),
+};
+
 const opponentSettings = {
-  pvp: false,
-  p1StartingSide: FIELD_SIDE_POS.LEFT,
+  pvp: true,
+  p1StartingSide: FIELD_SIDE_POS.RIGHT,
   aiMaxPaddleSpeed: 20,
 };
 const { pvp, p1StartingSide, aiMaxPaddleSpeed } = opponentSettings;

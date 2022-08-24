@@ -91,7 +91,11 @@ PONG.Ball = class {
     }
 
     // Periodically increase the speed based off of the amount of collisions.
-    if (hasCollided) this.collisionCount++;
+    if (hasCollided) {
+      this.collisionCount++;
+      audio.collision.currentTime = 0;
+      audio.collision.play();
+    }
     if (this.collisionCount > 0 && this.collisionCount % 5 === 0) {
       this.speed = Math.min(this.speed + 1, this.maxSpeed);
       this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
