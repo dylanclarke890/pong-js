@@ -30,15 +30,16 @@ PONG.Ball = class {
 
   hasCollidedWithPaddle(paddle) {
     let hasCollided = false;
+    const { LEFT, RIGHT } = FIELD_SIDE_POS;
     if (
-      paddle.x === FIELD_SIDE_POS.LEFT.paddleX &&
+      paddle.x === LEFT.paddleX &&
       this.left() <= paddle.right() &&
       this.left() >= paddle.left()
     ) {
       this.trajectory.x = DIRECTION.RIGHT;
       hasCollided = true;
     } else if (
-      paddle.x === FIELD_SIDE_POS.RIGHT.paddleX &&
+      paddle.x === RIGHT.paddleX &&
       this.right() >= paddle.left() &&
       this.right() <= paddle.right()
     ) {
@@ -50,12 +51,15 @@ PONG.Ball = class {
 
   update() {
     if (state.countdown) return;
+    
     const xMovement =
       this.trajectory.x === DIRECTION.LEFT ? this.speed : -this.speed;
     const yMovement =
       this.trajectory.y === DIRECTION.UP ? this.speed : -this.speed;
+
     this.x = Math.floor(this.x - xMovement);
     this.y = Math.floor(this.y - yMovement);
+
     let hasCollided = false;
     // Check if it has collided with the top or bottom boundary.
     if (this.top() <= 0) {
@@ -69,14 +73,10 @@ PONG.Ball = class {
 
     // Check for collision with either player's paddle.
     const { playerOne, playerTwo } = board;
-
-    if (playerOne.isInYAxisOfBall(this)) {
+    if (playerOne.isInYAxisOfBall(this))
       hasCollided = this.hasCollidedWithPaddle(playerOne);
-    }
-
-    if (playerTwo.isInYAxisOfBall(this)) {
+    if (playerTwo.isInYAxisOfBall(this))
       hasCollided = this.hasCollidedWithPaddle(playerTwo);
-    }
 
     // Check for collision with the left and right side of the screen.
     if (this.right() >= canvas.width) {
@@ -90,7 +90,6 @@ PONG.Ball = class {
         playerTwo.x === FIELD_SIDE_POS.RIGHT.paddleX ? playerTwo : playerOne;
     }
 
-    console.log(this.speed);
     // Periodically increase the speed based off of the amount of collisions.
     if (hasCollided) this.collisionCount++;
     if (this.collisionCount > 0 && this.collisionCount % 5 === 0) {

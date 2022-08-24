@@ -22,9 +22,10 @@ const FIELD_SIDE_POS = {
 
 const opponentSettings = {
   pvp: false,
-  p1StartingSide: FIELD_SIDE_POS.RIGHT,
+  p1StartingSide: FIELD_SIDE_POS.LEFT,
+  aiMaxPaddleSpeed: 20,
 };
-const { pvp, p1StartingSide } = opponentSettings;
+const { pvp, p1StartingSide, aiMaxPaddleSpeed } = opponentSettings;
 const p2StartingSide =
   p1StartingSide === FIELD_SIDE_POS.LEFT
     ? FIELD_SIDE_POS.RIGHT
@@ -34,7 +35,7 @@ const board = {
   playerOne: new PONG.Paddle.Player("Dylan", "Standard", p1StartingSide),
   playerTwo: pvp
     ? new PONG.Paddle.Player("Krys", "Alt", p2StartingSide)
-    : new PONG.Paddle.Pong(p2StartingSide),
+    : new PONG.Paddle.Pong(p2StartingSide, aiMaxPaddleSpeed),
   ball: new PONG.Ball({
     // randomly select left/right and up/down as starting directions for the ball
     x: [DIRECTION.LEFT, DIRECTION.RIGHT][PONG.utils.randUpTo(2, true)],
