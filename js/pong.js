@@ -10,19 +10,19 @@ const DIRECTION = {
   RIGHT: "R",
 };
 
-const FIELD_SIDE_POS = {
-  LEFT: 20,
-  RIGHT: canvas.width - 40,
-};
-
 const center = {
   w: canvas.width / 2,
   h: canvas.height / 2,
 };
 
+const FIELD_SIDE_POS = {
+  LEFT: { paddleX: 20, scoreX: center.w - 50 },
+  RIGHT: { paddleX: canvas.width - 40, scoreX: center.w + 50 },
+};
+
 const opponentSettings = {
   pvp: false,
-  p1StartingSide: FIELD_SIDE_POS.LEFT,
+  p1StartingSide: FIELD_SIDE_POS.RIGHT,
 };
 const { pvp, p1StartingSide } = opponentSettings;
 const p2StartingSide =
@@ -59,10 +59,6 @@ const state = {
   roundWon: false,
   over: false,
   winner: null,
-  score: {
-    p: 0,
-    e: 0,
-  },
 };
 
 /********************************************************************
@@ -70,18 +66,20 @@ const state = {
  */
 
 window.addEventListener("keydown", (e) => {
+  const pressingUp = { pressing: true, direction: DIRECTION.UP };
+  const pressingDown = { pressing: true, direction: DIRECTION.DOWN };
   switch (e.key.toLowerCase()) {
     case "arrowup":
-      state.controls.standard = { pressing: true, direction: DIRECTION.UP };
+      state.controls.standard = pressingUp;
       break;
     case "arrowdown":
-      state.controls.standard = { pressing: true, direction: DIRECTION.DOWN };
+      state.controls.standard = pressingDown;
       break;
     case "w":
-      state.controls.alt = { pressing: true, direction: DIRECTION.UP };
+      state.controls.alt = pressingUp;
       break;
     case "s":
-      state.controls.alt = { pressing: true, direction: DIRECTION.DOWN };
+      state.controls.alt = pressingDown;
       break;
     default:
       break;
@@ -89,14 +87,15 @@ window.addEventListener("keydown", (e) => {
 });
 
 window.addEventListener("keyup", (e) => {
+  const noPress = { pressing: false, direction: "" };
   switch (e.key.toLowerCase()) {
     case "arrowup":
     case "arrowdown":
-      state.controls.standard = { pressing: false, direction: "" };
+      state.controls.standard = noPress;
       break;
     case "w":
     case "s":
-      state.controls.alt = { pressing: false, direction: "" };
+      state.controls.alt = noPress;
       break;
     default:
       break;
@@ -123,26 +122,25 @@ function handleBall() {
 }
 
 function handleGameState() {
+  const { playerOne, playerTwo, winningScore, ball } = board;
   if (state.roundWon) {
-    if (state.winner === board.playerOne) state.score.p++;
-    if (state.winner === board.playerTwo) state.score.e++;
+    state.winner.score++;
     state.winner = null;
-  }
-  if (state.score.p >= board.winningScore && state.roundWon) {
-    state.over = true;
-    state.winner = board.playerOne;
-  } else if (state.score.e >= board.winningScore && state.roundWon) {
-    state.over = true;
-    state.winner = board.playerTwo;
-  }
-
-  if (state.roundWon && !state.over) {
-    const { r, speed, startingSpeed } = board.ball;
-    board.ball.x = center.w - r / 2;
-    board.ball.y = center.h - r / 2;
-    board.ball.speed = Math.max(speed - 3, startingSpeed);
-    state.countdown = 180;
-    state.roundWon = false;
+    if (playerOne.score >= winningScore) {
+      state.over = true;
+      state.winner = playerOne;
+    } else if (playerTwo.score >= winningScore) {
+      state.over = true;
+      state.winner = playerTwo;
+    }
+    if (!state.over) {
+      const { r, speed, startingSpeed } = ball;
+      ball.x = center.w - r / 2;
+      ball.y = center.h - r / 2;
+      ball.speed = Math.max(speed - 3, startingSpeed);
+      state.countdown = 180;
+      state.roundWon = false;
+    }
   }
 
   if (state.over)
@@ -154,9 +152,20 @@ function handleGameState() {
       center.h
     );
 
-  const { p, e } = state.score;
-  PONG.utils.drawText(p, "30px Arial", "white", center.w - 50, 25);
-  PONG.utils.drawText(e, "30px Arial", "white", center.w + 50, 25);
+  PONG.utils.drawText(
+    playerOne.score,
+    "30px Arial",
+    "white",
+    playerOne.scoreX,
+    25
+  );
+  PONG.utils.drawText(
+    playerTwo.score,
+    "30px Arial",
+    "white",
+    playerTwo.scoreX,
+    25
+  );
   this.frame++;
 }
 

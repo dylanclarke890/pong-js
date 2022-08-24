@@ -28,6 +28,24 @@ PONG.Ball = class {
     return this.x + this.r;
   }
 
+  hasCollidedWithPaddle(paddle) {
+    let hasCollided = false;
+    if (
+      paddle.x === FIELD_SIDE_POS.LEFT.paddleX &&
+      this.left() <= paddle.right()
+    ) {
+      this.trajectory.x = DIRECTION.RIGHT;
+      hasCollided = true;
+    } else if (
+      paddle.x === FIELD_SIDE_POS.RIGHT.paddleX &&
+      this.right() >= paddle.left()
+    ) {
+      this.trajectory.x = DIRECTION.LEFT;
+      hasCollided = true;
+    }
+    return hasCollided;
+  }
+
   update() {
     if (state.countdown) return;
     const xMovement =
@@ -49,31 +67,33 @@ PONG.Ball = class {
 
     // Check for collision with either player's paddle.
     const { playerOne, playerTwo } = board;
-    if (playerOne.isInYAxisOfBall(this) && this.left() <= playerOne.right()) {
-      this.trajectory.x = DIRECTION.RIGHT;
-      hasCollided = true;
+
+    if (playerOne.isInYAxisOfBall(this)) {
+      hasCollided = this.hasCollidedWithPaddle(playerOne);
     }
 
-    if (playerTwo.isInYAxisOfBall(this) && this.right() >= playerTwo.left()) {
-      this.trajectory.x = DIRECTION.LEFT;
-      hasCollided = true;
-    }
-
-    // Periodically increase the speed based off of the amount of collisions.
-    if (hasCollided) this.collisionCount++;
-    if (this.collisionCount > 0 && this.collisionCount % 5 === 0) {
-      this.speed = Math.min(this.speed +1, this.maxSpeed);
-      this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
+    if (playerTwo.isInYAxisOfBall(this)) {
+      hasCollided = this.hasCollidedWithPaddle(playerTwo);
     }
 
     // Check for collision with the left and right side of the screen.
     if (this.right() >= canvas.width) {
       state.roundWon = true;
-      state.winner = board.playerOne;
+      state.winner =
+        playerOne.x === FIELD_SIDE_POS.LEFT.paddleX ? playerOne : playerTwo;
     }
     if (this.left() <= 0) {
       state.roundWon = true;
-      state.winner = board.playerTwo;
+      state.winner =
+        playerTwo.x === FIELD_SIDE_POS.RIGHT.paddleX ? playerTwo : playerOne;
+    }
+
+    console.log(this.speed);
+    // Periodically increase the speed based off of the amount of collisions.
+    if (hasCollided) this.collisionCount++;
+    if (this.collisionCount > 0 && this.collisionCount % 5 === 0) {
+      this.speed = Math.min(this.speed + 1, this.maxSpeed);
+      this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
     }
   }
 

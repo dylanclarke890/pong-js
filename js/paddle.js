@@ -2,13 +2,15 @@ var PONG = PONG || {};
 PONG.Paddle = PONG.Paddle || {};
 
 PONG.Paddle.Base = class {
-  constructor(name, x) {
+  constructor(name, fieldPosition) {
     this.name = name;
     this.h = 80;
     this.w = 20;
-    this.x = x;
+    this.x = fieldPosition.paddleX;
     this.y = canvas.height / 2 - this.h / 2;
     this.paddleSpeed = 10;
+    this.score = 0;
+    this.scoreX = fieldPosition.scoreX; // position of score
   }
 
   top() {
@@ -57,8 +59,8 @@ PONG.Paddle.Base = class {
 };
 
 PONG.Paddle.Pong = class extends PONG.Paddle.Base {
-  constructor(x) {
-    super("Pong", x);
+  constructor(fieldPosition) {
+    super("Pong", fieldPosition);
   }
 
   // TODO: update ai to stop jittering effect.
