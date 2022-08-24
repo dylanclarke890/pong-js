@@ -6,6 +6,8 @@ PONG.Ball = class {
     this.y = canvas.height / 2 - 5;
     this.r = 10;
     this.speed = 3;
+    this.startingSpeed = this.speed;
+    this.maxSpeed = 12;
     this.collisionCount = 0;
     this.trajectory = trajectory;
   }
@@ -60,7 +62,7 @@ PONG.Ball = class {
     // Periodically increase the speed based off of the amount of collisions.
     if (hasCollided) this.collisionCount++;
     if (this.collisionCount > 0 && this.collisionCount % 5 === 0) {
-      this.speed++;
+      this.speed = Math.min(this.speed +1, this.maxSpeed);
       this.collisionCount = 0; // otherwise will infinitely speed up once it first hits 5.
     }
 

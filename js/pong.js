@@ -137,8 +137,10 @@ function handleGameState() {
   }
 
   if (state.roundWon && !state.over) {
-    board.ball.x = center.w - board.ball.r / 2;
-    board.ball.y = center.h - board.ball.r / 2;
+    const { r, speed, startingSpeed } = board.ball;
+    board.ball.x = center.w - r / 2;
+    board.ball.y = center.h - r / 2;
+    board.ball.speed = Math.max(speed - 3, startingSpeed);
     state.countdown = 180;
     state.roundWon = false;
   }

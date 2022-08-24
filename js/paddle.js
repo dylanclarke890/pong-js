@@ -19,6 +19,14 @@ PONG.Paddle.Base = class {
     return this.y + this.h;
   }
 
+  centerX() {
+    return this.x + this.w / 2;
+  }
+
+  centerY() {
+    return this.y + this.h / 2;
+  }
+
   left() {
     return this.x;
   }
@@ -32,10 +40,10 @@ PONG.Paddle.Base = class {
   }
 
   setYPosition(movement) {
-    if (this.top() - movement < 0) this.y = 0;
-    else if (this.bottom() - movement > canvas.height)
+    if (this.top() + movement < 0) this.y = 0;
+    else if (this.bottom() + movement > canvas.height)
       this.y = canvas.height - this.h;
-    else this.y -= movement;
+    else this.y += movement;
   }
 
   draw() {
@@ -57,11 +65,11 @@ PONG.Paddle.Pong = class extends PONG.Paddle.Base {
   update() {
     const ball = board.ball;
     let movement;
-    if (ball.top() > this.top() && ball.bottom() < this.bottom()) {
-      movement = 0;
-    } else {
-      movement = ball.top() > this.y ? -this.paddleSpeed : this.paddleSpeed;
-    }
+    if (ball.bottom() < this.centerY())
+      movement = Math.max(-this.paddleSpeed, ball.bottom() - this.centerY());
+    else if (ball.top() > this.centerY())
+      movement = Math.min(this.paddleSpeed, ball.top() - this.centerY());
+    else movement = 0;
     this.setYPosition(movement);
   }
 };
@@ -81,15 +89,15 @@ PONG.Paddle.Player = class extends PONG.Paddle.Base {
         if (!state.controls.standard.pressing) return;
         movement =
           state.controls.standard.direction === DIRECTION.UP
-            ? this.paddleSpeed
-            : -this.paddleSpeed;
+            ? -this.paddleSpeed
+            : this.paddleSpeed;
         break;
       case "Alt":
         if (!state.controls.alt.pressing) return;
         movement =
           state.controls.alt.direction === DIRECTION.UP
-            ? this.paddleSpeed
-            : -this.paddleSpeed;
+            ? -this.paddleSpeed
+            : this.paddleSpeed;
         break;
     }
     this.setYPosition(movement);
